@@ -313,791 +313,226 @@
 </div>
 
 <script>
+    // EDIT YOUR THESIS CATALOG HERE
+    const thesisDatabase = [
+       {
+  id: 1,
+  year: "2025",
+  title: "Exploring the Stories of Filipino Middle-Aged Single Mothers by Choice: A Narrative Analysis",
+  author: "Santos, J. C.; Dela Cruz, M. A.; Garcia, K. R.; Reyes, A. P.",
+  methodology: "Narrative",
+  code: "UEPS-2025:1.1&1.2",
+  abstract: "...",
+  tags: [
+    "Single mothers",
+    "middle-aged women",
+    "Filipino mothers",
+    "singlehood",
+    "motherhood"
+  ],
+  copies: 2,
+  reservations: []
+},
 
-    /*
-     * ============================================================
-     * GOOGLE SHEETS CONNECTION
-     * ============================================================
-     *
-     * Replace the URL below with your deployed
-     * Google Apps Script Web App URL.
-     */
+{
+  id: 2,
+  year: "2025",
+  title: "Fueling the Fire: A Narrative Study on the Motivational Attributions of Filipino Athletes in Tactical Sports",
+  author: "Valdez, J. P.; ...",
+  methodology: "Narrative",
+  code: "UEPS-2025:2",
+  abstract: "...",
+  tags: [
+    "Motivation",
+    "motivational attributions",
+    "tactical sports",
+    "Filipino athletes",
+    "judo",
+    "fencing",
+    "intrinsic motivation",
+    "resilience",
+    "athlete well-being"
+  ],
+  copies: 1,
+  reservations: []
+},
 
-    const GOOGLE_SHEETS_API =
-        'https://script.google.com/a/macros/ue.edu.ph/s/AKfycby8ixvisiOOr6Pgh7Rtbca6yQEUN8OTf1c5keh0NAY0wfRQ--hKRqTAagrHKklO-ni5/exec';
+{
+  id: 3,
+  year: "2025",
+  title: "Hinubog ng Kanlungan: A Narrative Study on the Lives of Aged-Out Orphans",
+  author: "...",
+  methodology: "Narrative",
+  code: "UEPS-2025:3",
+  abstract: "...",
+  tags: [
+    "Aged-out orphans",
+    "Qualitative narrative approach",
+    "Institutional Care",
+    "Aging out"
+  ],
+  copies: 1,
+  reservations: []
+},
+    ];
 
-
-    /*
-     * ============================================================
-     * DATABASE
-     * ============================================================
-     */
-
-    let thesisDatabase = [];
-
-    let currentYear = null;
-
+    let currentYear = "2026";
     let currentCategory = "All";
-
     let selectedBookId = null;
 
-
-    /*
-     * ============================================================
-     * INITIALIZATION
-     * ============================================================
-     */
-
-    async function init() {
-
-        showLoadingMessage();
-
-        try {
-
-            await loadThesesFromGoogleSheets();
-
-            if (thesisDatabase.length === 0) {
-
-                showCatalogMessage(
-                    'No thesis records were found.'
-                );
-
-                return;
-            }
-
-            /*
-             * Automatically select the newest year.
-             */
-            const years = [
-                ...new Set(
-                    thesisDatabase.map(book => book.year)
-                )
-            ].sort((a, b) => Number(b) - Number(a));
-
-            currentYear = years[0];
-
-            currentCategory = "All";
-
-            renderTabs();
-
-            renderFilters();
-
-            renderCatalog();
-
-            populateAvailableDates(8);
-
-        } catch (error) {
-
-            console.error(
-                'Error loading thesis database:',
-                error
-            );
-
-            showCatalogMessage(
-                'Unable to load the thesis catalog. Please try again later.'
-            );
-        }
+    // Initialization
+    function init() {
+        renderTabs();
+        renderFilters();
+        renderCatalog();
+        populateAvailableDates(8); // Generates upcoming Mondays & Wednesdays for 8 weeks ahead
     }
 
-
-    /*
-     * ============================================================
-     * LOAD DATA FROM GOOGLE SHEETS
-     * ============================================================
-     */
-
-    async function loadThesesFromGoogleSheets() {
-
-        const response = await fetch(
-            GOOGLE_SHEETS_API,
-            {
-                method: 'GET',
-                cache: 'no-store'
-            }
-        );
-
-        if (!response.ok) {
-
-            throw new Error(
-                `HTTP error: ${response.status}`
-            );
-        }
-
-        const result = await response.json();
-
-        if (!result.success) {
-
-            throw new Error(
-                result.error || 'Google Sheets API error'
-            );
-        }
-
-        thesisDatabase = result.data.map(book => ({
-
-            id: Number(book.id),
-
-            year: String(book.year || ''),
-
-            title: String(book.title || ''),
-
-            author: String(
-                book.author || 'Author not listed'
-            ),
-
-            methodology: String(
-                book.methodology || 'Not specified'
-            ),
-
-            code: String(book.code || ''),
-
-            abstract: String(
-                book.abstract || 'No abstract available.'
-            ),
-
-            tags: Array.isArray(book.tags)
-                ? book.tags
-                : [],
-
-            copies: Number(book.copies || 0),
-
-            /*
-             * Reservations are currently stored only
-             * in this browser session.
-             */
-            reservations: []
-
-        }));
-
-        console.log(
-            `Loaded ${thesisDatabase.length} theses.`
-        );
-    }
-
-
-    /*
-     * ============================================================
-     * LOADING / ERROR DISPLAY
-     * ============================================================
-     */
-
-    function showLoadingMessage() {
-
-        const container =
-            document.getElementById('catalogList');
-
-        container.innerHTML = `
-            <p style="
-                color: var(--text-muted);
-                padding: 10px;
-            ">
-                Loading thesis catalog...
-            </p>
-        `;
-    }
-
-
-    function showCatalogMessage(message) {
-
-        const container =
-            document.getElementById('catalogList');
-
-        container.innerHTML = `
-            <p style="
-                color: var(--text-muted);
-                padding: 10px;
-            ">
-                ${message}
-            </p>
-        `;
-    }
-
-
-    /*
-     * ============================================================
-     * DATE GENERATOR
-     * ============================================================
-     */
-
+    // Dynamic Monday and Wednesday Date Generator
     function populateAvailableDates(weeksAhead = 8) {
-
-        const select =
-            document.getElementById('reserveDate');
-
+        const select = document.getElementById('reserveDate');
         select.innerHTML = '';
-
+        
         const today = new Date();
-
         let count = 0;
-
-        for (
-            let i = 0;
-            count < weeksAhead * 2;
-            i++
-        ) {
-
+        
+        for (let i = 0; count < weeksAhead * 2; i++) {
             const d = new Date();
+            d.setDate(today.getDate() + i);
+            
+            const dayOfWeek = d.getDay(); // 1 = Monday, 3 = Wednesday
+            
+            if (dayOfWeek === 1 || dayOfWeek === 3) {
+                const isoDate = d.toISOString().split('T')[0];
+                const formattedText = d.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                }).replace(',', ' -');
 
-            d.setDate(
-                today.getDate() + i
-            );
-
-            const dayOfWeek = d.getDay();
-
-            /*
-             * 1 = Monday
-             * 3 = Wednesday
-             */
-
-            if (
-                dayOfWeek === 1 ||
-                dayOfWeek === 3
-            ) {
-
-                const isoDate =
-                    d.toISOString()
-                        .split('T')[0];
-
-                const formattedText =
-                    d.toLocaleDateString(
-                        'en-US',
-                        {
-                            weekday: 'long',
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                        }
-                    ).replace(',', ' -');
-
-                const option =
-                    document.createElement('option');
-
+                const option = document.createElement('option');
                 option.value = isoDate;
-
-                option.textContent =
-                    formattedText;
-
+                option.textContent = formattedText;
                 select.appendChild(option);
-
+                
                 count++;
             }
         }
     }
 
-
-    /*
-     * ============================================================
-     * YEAR TABS
-     * ============================================================
-     */
-
     function renderTabs() {
-
-        const years = [
-            ...new Set(
-                thesisDatabase.map(
-                    book => book.year
-                )
-            )
-        ].sort(
-            (a, b) => Number(b) - Number(a)
-        );
-
-        const container =
-            document.getElementById('yearTabs');
-
-        container.innerHTML =
-            years.map(year => `
-
-                <button
-                    class="tab-btn ${
-                        year === currentYear
-                            ? 'active'
-                            : ''
-                    }"
-                    onclick="setYear('${escapeAttribute(year)}')"
-                >
-                    ${escapeHTML(year)}
-                </button>
-
-            `).join('');
+        const years = [...new Set(thesisDatabase.map(b => b.year))].sort().reverse();
+        const container = document.getElementById('yearTabs');
+        container.innerHTML = years.map(y => `
+            <button class="tab-btn ${y === currentYear ? 'active' : ''}" onclick="setYear('${y}')">${y}</button>
+        `).join('');
     }
-
-
-    /*
-     * ============================================================
-     * METHODOLOGY FILTERS
-     * ============================================================
-     */
 
     function renderFilters() {
-
-        const methodologies = [
-            ...new Set(
-                thesisDatabase
-                    .map(book =>
-                        book.methodology
-                    )
-                    .filter(Boolean)
-            )
-        ].sort();
-
-        const categories = [
-            "All",
-            ...methodologies
-        ];
-
-        const container =
-            document.getElementById('catFilters');
-
-        container.innerHTML =
-            categories.map(category => `
-
-                <button
-                    class="cat-btn ${
-                        category === currentCategory
-                            ? 'active'
-                            : ''
-                    }"
-                    onclick="setCategory(
-                        '${escapeAttribute(category)}'
-                    )"
-                >
-                    ${escapeHTML(category)}
-                </button>
-
-            `).join('');
+        const categories = ["All", ...new Set(thesisDatabase.map(b => b.methodology))];
+        const container = document.getElementById('catFilters');
+        container.innerHTML = categories.map(c => `
+            <button class="cat-btn ${c === currentCategory ? 'active' : ''}" onclick="setCategory('${c}')">${c}</button>
+        `).join('');
     }
-
-
-    /*
-     * ============================================================
-     * CATALOG
-     * ============================================================
-     */
 
     function renderCatalog() {
-
-        const query =
-            document
-                .getElementById('searchBar')
-                .value
-                .toLowerCase()
-                .trim();
-
-        const container =
-            document.getElementById('catalogList');
-
-
-        const filtered =
-            thesisDatabase.filter(book => {
-
-                const matchesYear =
-                    book.year === currentYear;
-
-
-                const matchesCat =
-                    currentCategory === "All" ||
-                    book.methodology === currentCategory;
-
-
-                const matchesSearch =
-
-                    book.title
-                        .toLowerCase()
-                        .includes(query)
-
-                    ||
-
-                    book.abstract
-                        .toLowerCase()
-                        .includes(query)
-
-                    ||
-
-                    book.author
-                        .toLowerCase()
-                        .includes(query)
-
-                    ||
-
-                    book.methodology
-                        .toLowerCase()
-                        .includes(query)
-
-                    ||
-
-                    book.tags.some(
-                        tag =>
-                            tag
-                                .toLowerCase()
-                                .includes(query)
-                    );
-
-
-                return (
-                    matchesYear &&
-                    matchesCat &&
-                    matchesSearch
-                );
-            });
-
-
-        if (filtered.length === 0) {
-
-            container.innerHTML = `
-                <p style="
-                    color: var(--text-muted);
-                    padding: 10px;
-                ">
-                    No matching theses found.
-                </p>
-            `;
-
-            return;
-        }
-
-
-        container.innerHTML =
-            filtered.map(book => `
-
-                <div
-                    class="book-card ${
-                        book.id === selectedBookId
-                            ? 'selected'
-                            : ''
-                    }"
-                    onclick="selectBook(${book.id})"
-                >
-
-                    <div class="book-title">
-                        ${escapeHTML(book.title)}
-                    </div>
-
-
-                    <div class="book-meta">
-
-                        <span>
-                            👤
-                            ${escapeHTML(book.author)}
-                        </span>
-
-                        <span>
-                            📂
-                            ${escapeHTML(
-                                book.methodology
-                            )}
-                        </span>
-
-                        <span>
-                            📅
-                            ${escapeHTML(book.year)}
-                        </span>
-
-                    </div>
-
-
-                    <div style="
-                        display:flex;
-                        gap:5px;
-                        flex-wrap:wrap;
-                    ">
-
-                        ${
-                            book.tags
-                                .map(tag => `
-
-                                    <span class="tag">
-                                        #${escapeHTML(tag)}
-                                    </span>
-
-                                `)
-                                .join('')
-                        }
-
-                    </div>
-
-                </div>
-
-            `).join('');
-    }
-
-
-    /*
-     * ============================================================
-     * YEAR SELECTION
-     * ============================================================
-     */
-
-    function setYear(year) {
-
-        currentYear = year;
-
-        currentCategory = "All";
-
-        renderTabs();
-
-        renderFilters();
-
-        renderCatalog();
-    }
-
-
-    /*
-     * ============================================================
-     * METHODOLOGY SELECTION
-     * ============================================================
-     */
-
-    function setCategory(category) {
-
-        currentCategory = category;
-
-        renderFilters();
-
-        renderCatalog();
-    }
-
-
-    /*
-     * ============================================================
-     * SELECT THESIS
-     * ============================================================
-     */
-
-    function selectBook(id) {
-
-        selectedBookId = id;
-
-        renderCatalog();
-
-
-        const book =
-            thesisDatabase.find(
-                b => b.id === id
-            );
-
-
-        if (!book) {
-            return;
-        }
-
-
-        document.getElementById(
-            'panelTitle'
-        ).innerText = book.title;
-
-
-        document.getElementById(
-            'panelAbstract'
-        ).innerText =
-            book.abstract;
-
-
-        document.getElementById(
-            'panelContent'
-        ).style.display = 'flex';
-
-
-        updateReservationsList(book);
-    }
-
-
-    /*
-     * ============================================================
-     * RESERVATION DISPLAY
-     * ============================================================
-     */
-
-    function updateReservationsList(book) {
-
-        const container =
-            document.getElementById(
-                'existingReservations'
-            );
-
-
-        if (
-            !book.reservations ||
-            book.reservations.length === 0
-        ) {
-
-            container.innerHTML = `
-                <p style="
-                    color: var(--text-muted)
-                ">
-                    No active reservations.
-                    All dates open.
-                </p>
-            `;
-
-            return;
-        }
-
-
-        container.innerHTML =
-            book.reservations
-                .map(reservation => `
-
-                    <div class="res-item">
-
-                        <span class="res-date">
-                            🗓️
-                            ${escapeHTML(
-                                reservation.date
-                            )}
-                        </span>
-
-                        <span>
-                            Claimed by:
-                            ${escapeHTML(
-                                reservation.name
-                            )}
-                        </span>
-
-                    </div>
-
-                `)
-                .join('');
-    }
-
-
-    /*
-     * ============================================================
-     * RESERVATION
-     * ============================================================
-     */
-
-    function makeReservation() {
-
-        const name =
-            document
-                .getElementById('borrowerName')
-                .value
-                .trim();
-
-
-        const date =
-            document
-                .getElementById('reserveDate')
-                .value;
-
-
-        if (!name) {
-
-            alert(
-                'Please enter your name to book!'
-            );
-
-            return;
-        }
-
-
-        const book =
-            thesisDatabase.find(
-                b => b.id === selectedBookId
-            );
-
-
-        if (!book) {
-
-            alert(
-                'Please select a thesis first.'
-            );
-
-            return;
-        }
-
-
-        const exists =
-            book.reservations.some(
-                reservation =>
-                    reservation.date === date
-            );
-
-
-        if (exists) {
-
-            alert(
-                'This specific thesis is already reserved for that date! Please select another open Monday or Wednesday.'
-            );
-
-            return;
-        }
-
-
-        book.reservations.push({
-
-            date: date,
-
-            name: name
-
+        const query = document.getElementById('searchBar').value.toLowerCase();
+        const container = document.getElementById('catalogList');
+        
+        const filtered = thesisDatabase.filter(book => {
+            const matchesYear = book.year === currentYear;
+            const matchesCat = currentCategory === "All" || book.methodology === currentCategory;
+            const matchesSearch = book.title.toLowerCase().includes(query) || 
+                                  book.abstract.toLowerCase().includes(query) ||
+                                  book.tags.some(t => t.toLowerCase().includes(query));
+            return matchesYear && matchesCat && matchesSearch;
         });
 
+        if(filtered.length === 0) {
+            container.innerHTML = '<p style="color: var(--text-muted); padding: 10px;">No matching theses found.</p>';
+            return;
+        }
 
-        alert(
-            `Successfully reserved "${book.title}" for ${date}!`
-        );
+        container.innerHTML = filtered.map(book => `
+            <div class="book-card ${book.id === selectedBookId ? 'selected' : ''}" onclick="selectBook(${book.id})">
+                <div class="book-title">${book.title}</div>
+                <div class="book-meta">
+                    <span>👤 ${book.author}</span>
+                    <span>📂 ${book.methodology}</span>
+                    <span>📅 ${book.year}</span>
+                </div>
+                <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                    ${book.tags.map(t => `<span class="tag">#${t}</span>`).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
 
+    function setYear(year) {
+        currentYear = year;
+        renderTabs();
+        renderCatalog();
+    }
 
-        document.getElementById(
-            'borrowerName'
-        ).value = '';
+    function setCategory(cat) {
+        currentCategory = cat;
+        renderFilters();
+        renderCatalog();
+    }
 
-
+    function selectBook(id) {
+        selectedBookId = id;
+        renderCatalog();
+        
+        const book = thesisDatabase.find(b => b.id === id);
+        document.getElementById('panelTitle').innerText = book.title;
+        document.getElementById('panelAbstract').innerText = book.abstract;
+        document.getElementById('panelContent').style.display = 'flex';
+        
         updateReservationsList(book);
     }
 
-
-    /*
-     * ============================================================
-     * SECURITY / DISPLAY HELPERS
-     * ============================================================
-     *
-     * These prevent text from the spreadsheet
-     * from being interpreted as HTML.
-     */
-
-    function escapeHTML(value) {
-
-        return String(value ?? '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+    function updateReservationsList(book) {
+        const container = document.getElementById('existingReservations');
+        if(book.reservations.length === 0) {
+            container.innerHTML = '<p style="color: var(--text-muted)">No active reservations. All dates open.</p>';
+            return;
+        }
+        container.innerHTML = book.reservations.map(r => `
+            <div class="res-item">
+                <span class="res-date">🗓️ ${r.date}</span>
+                <span>Claimed by: ${r.name}</span>
+            </div>
+        `).join('');
     }
 
+    function makeReservation() {
+        const name = document.getElementById('borrowerName').value.trim();
+        const date = document.getElementById('reserveDate').value;
+        
+        if(!name) {
+            alert('Please enter your name to book!');
+            return;
+        }
 
-    function escapeAttribute(value) {
+        const book = thesisDatabase.find(b => b.id === selectedBookId);
+        
+        const exists = book.reservations.some(r => r.date === date);
+        if(exists) {
+            alert('This specific book is already reserved for that date! Please select another open Monday or Wednesday.');
+            return;
+        }
 
-        return String(value ?? '')
-            .replace(/\\/g, '\\\\')
-            .replace(/'/g, "\\'");
+        book.reservations.push({ date, name });
+        alert(`Successfully reserved "${book.title}" for ${date}!`);
+        document.getElementById('borrowerName').value = '';
+        updateReservationsList(book);
     }
 
-
-    /*
-     * ============================================================
-     * SEARCH
-     * ============================================================
-     */
-
-    document
-        .getElementById('searchBar')
-        .addEventListener(
-            'input',
-            renderCatalog
-        );
-
-
-    /*
-     * ============================================================
-     * START
-     * ============================================================
-     */
-
+    document.getElementById('searchBar').addEventListener('input', renderCatalog);
     init();
-
 </script>
 </body>
 </html>
