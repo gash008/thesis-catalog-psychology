@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-PH">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,7 +24,7 @@
         }
 
         .container {
-            max-width: 650px;
+            max-width: 750px;
             margin: 40px auto;
             background: var(--card-bg);
             padding: 30px;
@@ -45,6 +45,8 @@
             font-size: 1.1rem;
             margin-bottom: 8px;
             color: #4a5568;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
         }
 
         .form-group {
@@ -84,8 +86,23 @@
             min-height: 60px;
         }
 
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            background: #edf2f7;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .metadata-item span {
+            font-weight: bold;
+            color: #4a5568;
+        }
+
         .btn {
-            display: width;
             width: 100%;
             background-color: var(--primary-color);
             color: white;
@@ -141,123 +158,43 @@
         <div class="form-group">
             <label for="bookSelect">Select a book to reserve</label>
             <select id="bookSelect" required>
-                <option value="" disabled selected>-- Choose a Thesis Book --</option>
-                <option value="thesis-1">AI-Driven Traffic Management Systems in Smart Cities (2025)</option>
-                <option value="thesis-2">Blockchain Applications for Secure Electronic Health Records (2026)</option>
-                <option value="thesis-3">The Impact of Remote Work on Software Engineering Productivity (2026)</option>
-                <option value="thesis-4">An Analysis of Microplastic Concentrations in Local Marine Environments (2025)</option>
-            </select>
-        </div>
-
-        <!-- 2. Abstract Preview -->
-        <div class="form-group">
-            <h3>Abstract Preview</h3>
-            <div id="abstractPreview" class="abstract-box">Please select a thesis book above to view its abstract preview.</div>
-        </div>
-
-        <!-- 3. Your Name -->
-        <div class="form-group">
-            <label for="userName">Your Name</label>
-            <input type="text" id="userName" placeholder="Enter your full name" required>
-        </div>
-
-        <!-- 4. Choose Available Date -->
-        <div class="form-group">
-            <label for="dateSelect">Choose Available Date (Only Open Days)</label>
-            <select id="dateSelect" required>
-                <option value="" disabled selected>-- Select an open date --</option>
-                <option value="Wednesday - Sep 16, 2026">Wednesday - Sep 16, 2026</option>
-                <option value="Saturday - Sep 19, 2026">Saturday - Sep 19, 2026</option>
-                <option value="Wednesday - Sep 23, 2026">Wednesday - Sep 23, 2026</option>
-                <option value="Saturday - Sep 26, 2026">Saturday - Sep 26, 2026</option>
-            </select>
-        </div>
-
-        <!-- 5. Confirm Button -->
-        <button type="submit" class="btn">Confirm Instant Reservation</button>
-    </form>
-
-    <!-- 6. Existing Bookings -->
-    <div class="bookings-section">
-        <h3>Existing Bookings for this item:</h3>
-        <ul id="bookingsList" class="bookings-list">
-            <li class="no-bookings">No current reservations for this item.</li>
-        </ul>
-    </div>
-</div>
-
-<script>
-    // Data dictionary for abstracts
-    const abstracts = {
-        'thesis-1': 'This study explores the integration of real-time machine learning algorithms with smart city IoT infrastructure to optimize urban traffic flows and reduce carbon emissions.',
-        'thesis-2': 'A framework proposing a decentralized ledger system designed to give patients granular control over their medical history while preserving cryptographic data security.',
-        'thesis-3': 'An empirical analysis evaluating software development velocity, team communication friction, and developer burnout across hybrid and fully remote operating models.',
-        'thesis-4': 'This research maps the degradation patterns and density metrics of synthetic micro-polymers collected across regional coastal water baselines.'
-    };
-
-    const bookSelect = document.getElementById('bookSelect');
-    const abstractPreview = document.getElementById('abstractPreview');
-    const reservationForm = document.getElementById('reservationForm');
-    const bookingsList = document.getElementById('bookingsList');
-
-    // Object to track mock reservations dynamically per book
-    const activeBookings = {
-        'thesis-1': [],
-        'thesis-2': [],
-        'thesis-3': [],
-        'thesis-4': []
-    };
-
-    // Update abstract and booking list when a book is picked
-    bookSelect.addEventListener('change', function() {
-        const selectedId = this.value;
-        
-        // Update Abstract
-        abstractPreview.textContent = abstracts[selectedId] || '';
-
-        // Update Existing Bookings display
-        renderBookings(selectedId);
-    });
-
-    function renderBookings(bookId) {
-        bookingsList.innerHTML = '';
-        const list = activeBookings[bookId] || [];
-
-        if (list.length === 0) {
-            bookingsList.innerHTML = '<li class="no-bookings">No current reservations for this item.</li>';
-        } else {
-            list.forEach(booking => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span><strong>${booking.name}</strong></span> <span>📅 ${booking.date}</span>`;
-                bookingsList.appendChild(li);
-            });
-        }
-    }
-
-    // Handle form submission
-    reservationForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const bookId = bookSelect.value;
-        const name = document.getElementById('userName').value;
-        const date = document.getElementById('dateSelect').value;
-
-        if (!bookId) {
-            alert('Please select a book first!');
-            return;
-        }
-
-        // Add to our simulated data
-        activeBookings[bookId].push({ name, date });
-
-        // Refresh view & reset name fields
-        renderBookings(bookId);
-        document.getElementById('userName').value = '';
-        document.getElementById('dateSelect').selectedIndex = 0;
-
-        alert('Reservation successfully added!');
-    });
-</script>
-
-</body>
-</html>
+                <option value="" disabled selected>-- Choose a Thesis Book from Catalog --</option>
+                <optgroup label="2025 Proposals">
+                    <option value="t63">Caught in Conflict: A Mixed Methods Study on Ambivalence Among Experienced Filipino Voters (2025)</option>
+                    <option value="t62">LEVEL OF BURNOUT AMONG GUIDANCE WORKERS: BASIS FOR PROPOSED SOCIAL SUPPORT MENTAL HEALTH PROGRAM (2025)</option>
+                    <option value="t61">PROTEKTOR NG BAHAY AT BUHAY: LIVED EXPERIENCES OF MOTHER-POLICE OFFICERS (2025)</option>
+                    <option value="t60">Decoding Parenting: Lived Experiences of Mothers Raising Generation Alpha in a Digitally Connected World (2025)</option>
+                    <option value="t59">Beyond Care (er): The Phenomenological Study of the Experiences of Psychiatric Nurses in Mentall Health Institution in the Philippines (2025)</option>
+                    <option value="t58">A Phenomenological Study on The Psychological Well-being of Persons Deprived of Liberty (2025)</option>
+                    <option value="t57">A Paradigm Shift: Exploring the Role Reversal Experiences of Filipino Househusbands (2025)</option>
+                    <option value="t56">Para sa Pamilya: The Narrative of Single Female Middle-Aged Breadwinners (2025)</option>
+                    <option value="t55">Paglisan sa Kinagisnan: Generation Z Blue-Collar Migrants' Journey Towards Independent Living in Metro Manila (2025)</option>
+                    <option value="t54">Isang Kahig, Isang Tuwa: Exploring the Perceived Life Satisfaction of Filipino Individuals in a Family of Intergenerational Poverty (2025)</option>
+                    <option value="t53">Home Alone: Navigating the Empty Nest of Filipino Elderly (2025)</option>
+                    <option value="t52">Hinubog ng Kanlungan: A Narrative Study on the Lives of Aged-Out Orphans (2025)</option>
+                    <option value="t51">Fueling the Fire: A Narrative Study on the Motivational Attributions of Filipino Athletes in Tactical Sports (2025)</option>
+                    <option value="t50">Exploring the Stories of Filipino Middle-Aged Single Mothers by Choice: A Narrative Analysis (2025)</option>
+                </optgroup>
+                <optgroup label="2024 Base Catalog">
+                    <option value="t49">Paths to Redemption: An Exploration of Criminal Thinking Styles, Perceived Social Support, and Therapeutic Community Modality Program TCMP Engagement among Reoffenders in Manila City Jail-Male Dormitory (2024)</option>
+                    <option value="t48">Navigating the Terrain of Filipino Family Dynamics on Informal Caregiving to Patients with Alzheimer's Disease: A Narrative Analysis (2024)</option>
+                    <option value="t47">May-December: Exploring Romantic Contentment Under Age-Discrepant Relationships of Filipino Women (2024)</option>
+                    <option value="t46">Clicking Away: Exploring the Motivational Factors of Online Shoppers with Impulsive Buying Behavior (2024)</option>
+                    <option value="t45">The Lived Experience of a Young Adult Worker with an Orthopedic Disability Having a Positive Life Orientation (2024)</option>
+                    <option value="t44">The Interpersonal Trauma Recovery of a Quadragenarian Male Survivor of Sexual Abuse: A Case Study (2024)</option>
+                    <option value="t43">Navigating Emotional Storms: Case Study on the Journey to Social Reintegration of a Former Juvenile with Emotional Dysregulation (2024)</option>
+                    <option value="t42">A Case Study: Social Ableist Experiences of a 29 Year Old Filipino with Dyslexia (2024)</option>
+                    <option value="t41">Ties Unbound: A Phenomenological Study on the Lived Experiences of Young Adult Females with Paternal Abandonment (2024)</option>
+                    <option value="t40">Through the Lens of Time: The Quality of Life of Filipino Adults with Diabetic Retinopathy (2024)</option>
+                    <option value="t39">Shadowed Sunset: Lived Experience of Desolated Elderly Filipino Women Residing in a Nursing Home (2024)</option>
+                    <option value="t38">Marital Infidelity: A Phenomenological Study on Self-healing Among Betrayed Wives (2024)</option>
+                    <option value="t37">Listening to the Unheard: Exploring the Lived Experience of Hard-of-Hearing (HoH) Middle to Late Adolescents in the SpEd Program (2024)</option>
+                    <option value="t36">Breaking Barriers: Understanding the Lived Experiences of Heterosexual Children with Gay Fathers (2024)</option>
+                </optgroup>
+                <optgroup label="2023 Historical Records">
+                    <option value="t35">YAMANG IPINAGKAIT: EXPLORING INTERGENERATIONAL TRANSMISSION OF POVERTY AMONG STREET DWELLERS (2023)</option>
+                    <option value="t34">ACADEMIC SELF-EFFICACY PROFILE OF SELECTED SENIOR HIGH SCHOOL STUDENTS FROM UNIVERSITY OF THE EAST, MANILA (2023)</option>
+                    <option value="t33">Psycing the Psych: A Case Study on a Practicing Psychologist Previously Diagnosed with Bipolar and Borderline Personality Disorder (2023)</option>
+                    <option value="t32">SOCIAL ISOLATION AND SELF-ESTEEM AMONG COLLEGE STUDENTS OF THE UNIVERSITY OF THE EAST-MANILA (2023)</option>
+                    <option value="t31">SCHOOL BURNOUT, PERCEIVED STRESS LEVELS, AND ONLINE DISINHIBITION AMONG CAS STUDENTS OF UE-MANILA (2023)</option>
+                    <option value="t30">Sa Patnubay ng Espesyal at Dakilang Guro: The Stories of Unwavering Motivation of Filipino SpEd Teachers (2023)</option>
