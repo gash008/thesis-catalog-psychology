@@ -1,200 +1,1103 @@
 <!DOCTYPE html>
-<html lang="en-PH">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thesis Book Reservation System</title>
     <style>
         :root {
-            --primary-color: #2b6cb0;
-            --primary-hover: #2c5282;
-            --bg-color: #f7fafc;
-            --card-bg: #ffffff;
-            --text-color: #2d3748;
-            --border-color: #e2e8f0;
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #bb86fc;
+            --secondary-color: #03dac6;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #333333;
+            --reserved-color: #cf6679;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            line-height: 1.5;
-            margin: 0;
             padding: 20px;
         }
 
         .container {
-            max-width: 750px;
-            margin: 40px auto;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 900px) {
+            .container {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        header {
+            grid-column: 1 / -1;
+            background: var(--surface-color);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         h1 {
-            font-size: 1.8rem;
-            margin-top: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #1a202c;
+            color: var(--primary-color);
+            font-size: 1.5rem;
         }
 
-        h3 {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-            color: #4a5568;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 4px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #4a5568;
-        }
-
-        select, input[type="text"] {
-            width: 100%;
-            padding: 10px 12px;
+        .search-bar {
+            background: #2d2d2d;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 1rem;
-            box-sizing: border-box;
-            background-color: #fff;
+            padding: 10px 15px;
+            border-radius: 20px;
+            color: white;
+            width: 100%;
+            max-width: 400px;
+            outline: none;
         }
 
-        select:focus, input[type="text"]:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        .tabs-container {
+            background: var(--surface-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            margin-bottom: -12px;
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .cat-btn {
+            background: #2d2d2d;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .cat-btn.active {
+            background: var(--primary-color);
+            color: #121212;
+            font-weight: bold;
+        }
+
+        .catalog-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .book-card {
+            background: #252525;
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .book-card:hover {
+            transform: translateX(3px);
+            background: #2d2d2d;
+        }
+
+        .book-card.selected {
+            background: #2d2d2d;
+            border-left-color: var(--primary-color);
+        }
+
+        .book-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .book-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 15px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #333;
+            color: var(--secondary-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .reservation-panel {
+            background: var(--surface-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         .abstract-box {
-            background-color: #f8fafc;
-            border-left: 4px solid var(--primary-color);
+            background: #252525;
             padding: 15px;
-            border-radius: 0 6px 6px 0;
-            font-size: 0.95rem;
-            color: #4a5568;
-            min-height: 60px;
-        }
-
-        .metadata-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 10px;
-            font-size: 0.85rem;
-            background: #edf2f7;
-            padding: 10px;
             border-radius: 6px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #ccc;
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid #333;
         }
 
-        .metadata-item span {
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
             font-weight: bold;
-            color: #4a5568;
         }
 
-        .btn {
-            width: 100%;
-            background-color: var(--primary-color);
+        input, select {
+            background: #252525;
+            border: 1px solid var(--border-color);
+            padding: 10px;
             color: white;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .reserve-btn {
+            background: var(--primary-color);
+            color: #121212;
             border: none;
             padding: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 6px;
+            border-radius: 4px;
+            font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.2s;
+            font-size: 1rem;
+            transition: background 0.2s;
         }
 
-        .btn:hover {
-            background-color: var(--primary-hover);
+        .reserve-btn:hover {
+            background: #a370db;
         }
 
-        .bookings-section {
-            margin-top: 30px;
-            border-top: 2px dashed var(--border-color);
-            padding-top: 20px;
+        .reservations-view {
+            margin-top: 10px;
+            font-size: 0.85rem;
         }
 
-        .bookings-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .bookings-list li {
-            padding: 10px;
-            background: #f1f5f9;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
+        .res-item {
             display: flex;
             justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #333;
         }
 
-        .no-bookings {
-            color: #a0aec0;
-            font-style: italic;
-            font-size: 0.9rem;
+        .res-date {
+            color: var(--secondary-color);
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>📚 Thesis Catalog & Book Reservation</h1>
+    <header>
+        <h1>📚 Thesis Catalog & Book Reservation</h1>
+        <input type="text" id="searchBar" class="search-bar" placeholder="Search title, keywords (e.g. body shaming)...">
+    </header>
 
-    <form id="reservationForm">
-        <!-- 1. Select a book to reserve -->
-        <div class="form-group">
-            <label for="bookSelect">Select a book to reserve</label>
-            <select id="bookSelect" required>
-                <option value="" disabled selected>-- Choose a Thesis Book from Catalog --</option>
-                <optgroup label="2025 Proposals">
-                    <option value="t63">Caught in Conflict: A Mixed Methods Study on Ambivalence Among Experienced Filipino Voters (2025)</option>
-                    <option value="t62">LEVEL OF BURNOUT AMONG GUIDANCE WORKERS: BASIS FOR PROPOSED SOCIAL SUPPORT MENTAL HEALTH PROGRAM (2025)</option>
-                    <option value="t61">PROTEKTOR NG BAHAY AT BUHAY: LIVED EXPERIENCES OF MOTHER-POLICE OFFICERS (2025)</option>
-                    <option value="t60">Decoding Parenting: Lived Experiences of Mothers Raising Generation Alpha in a Digitally Connected World (2025)</option>
-                    <option value="t59">Beyond Care (er): The Phenomenological Study of the Experiences of Psychiatric Nurses in Mentall Health Institution in the Philippines (2025)</option>
-                    <option value="t58">A Phenomenological Study on The Psychological Well-being of Persons Deprived of Liberty (2025)</option>
-                    <option value="t57">A Paradigm Shift: Exploring the Role Reversal Experiences of Filipino Househusbands (2025)</option>
-                    <option value="t56">Para sa Pamilya: The Narrative of Single Female Middle-Aged Breadwinners (2025)</option>
-                    <option value="t55">Paglisan sa Kinagisnan: Generation Z Blue-Collar Migrants' Journey Towards Independent Living in Metro Manila (2025)</option>
-                    <option value="t54">Isang Kahig, Isang Tuwa: Exploring the Perceived Life Satisfaction of Filipino Individuals in a Family of Intergenerational Poverty (2025)</option>
-                    <option value="t53">Home Alone: Navigating the Empty Nest of Filipino Elderly (2025)</option>
-                    <option value="t52">Hinubog ng Kanlungan: A Narrative Study on the Lives of Aged-Out Orphans (2025)</option>
-                    <option value="t51">Fueling the Fire: A Narrative Study on the Motivational Attributions of Filipino Athletes in Tactical Sports (2025)</option>
-                    <option value="t50">Exploring the Stories of Filipino Middle-Aged Single Mothers by Choice: A Narrative Analysis (2025)</option>
-                </optgroup>
-                <optgroup label="2024 Base Catalog">
-                    <option value="t49">Paths to Redemption: An Exploration of Criminal Thinking Styles, Perceived Social Support, and Therapeutic Community Modality Program TCMP Engagement among Reoffenders in Manila City Jail-Male Dormitory (2024)</option>
-                    <option value="t48">Navigating the Terrain of Filipino Family Dynamics on Informal Caregiving to Patients with Alzheimer's Disease: A Narrative Analysis (2024)</option>
-                    <option value="t47">May-December: Exploring Romantic Contentment Under Age-Discrepant Relationships of Filipino Women (2024)</option>
-                    <option value="t46">Clicking Away: Exploring the Motivational Factors of Online Shoppers with Impulsive Buying Behavior (2024)</option>
-                    <option value="t45">The Lived Experience of a Young Adult Worker with an Orthopedic Disability Having a Positive Life Orientation (2024)</option>
-                    <option value="t44">The Interpersonal Trauma Recovery of a Quadragenarian Male Survivor of Sexual Abuse: A Case Study (2024)</option>
-                    <option value="t43">Navigating Emotional Storms: Case Study on the Journey to Social Reintegration of a Former Juvenile with Emotional Dysregulation (2024)</option>
-                    <option value="t42">A Case Study: Social Ableist Experiences of a 29 Year Old Filipino with Dyslexia (2024)</option>
-                    <option value="t41">Ties Unbound: A Phenomenological Study on the Lived Experiences of Young Adult Females with Paternal Abandonment (2024)</option>
-                    <option value="t40">Through the Lens of Time: The Quality of Life of Filipino Adults with Diabetic Retinopathy (2024)</option>
-                    <option value="t39">Shadowed Sunset: Lived Experience of Desolated Elderly Filipino Women Residing in a Nursing Home (2024)</option>
-                    <option value="t38">Marital Infidelity: A Phenomenological Study on Self-healing Among Betrayed Wives (2024)</option>
-                    <option value="t37">Listening to the Unheard: Exploring the Lived Experience of Hard-of-Hearing (HoH) Middle to Late Adolescents in the SpEd Program (2024)</option>
-                    <option value="t36">Breaking Barriers: Understanding the Lived Experiences of Heterosexual Children with Gay Fathers (2024)</option>
-                </optgroup>
-                <optgroup label="2023 Historical Records">
-                    <option value="t35">YAMANG IPINAGKAIT: EXPLORING INTERGENERATIONAL TRANSMISSION OF POVERTY AMONG STREET DWELLERS (2023)</option>
-                    <option value="t34">ACADEMIC SELF-EFFICACY PROFILE OF SELECTED SENIOR HIGH SCHOOL STUDENTS FROM UNIVERSITY OF THE EAST, MANILA (2023)</option>
-                    <option value="t33">Psycing the Psych: A Case Study on a Practicing Psychologist Previously Diagnosed with Bipolar and Borderline Personality Disorder (2023)</option>
-                    <option value="t32">SOCIAL ISOLATION AND SELF-ESTEEM AMONG COLLEGE STUDENTS OF THE UNIVERSITY OF THE EAST-MANILA (2023)</option>
-                    <option value="t31">SCHOOL BURNOUT, PERCEIVED STRESS LEVELS, AND ONLINE DISINHIBITION AMONG CAS STUDENTS OF UE-MANILA (2023)</option>
-                    <option value="t30">Sa Patnubay ng Espesyal at Dakilang Guro: The Stories of Unwavering Motivation of Filipino SpEd Teachers (2023)</option>
+    <main class="tabs-container">
+        <div class="tabs" id="yearTabs">
+            <!-- Dynamic Year Tabs -->
+        </div>
+        
+        <div class="category-filters" id="catFilters">
+            <!-- Dynamic Methodologies -->
+        </div>
+
+        <div class="catalog-list" id="catalogList">
+            <!-- Dynamic Book Cards -->
+        </div>
+    </main>
+
+    <aside class="reservation-panel" id="resPanel">
+        <h3 id="panelTitle">Select a book to reserve</h3>
+        
+        <div id="panelContent" style="display: none; flex-direction: column; gap: 15px;">
+            <div>
+                <label>Abstract Preview</label>
+                <div class="abstract-box" id="panelAbstract"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="borrowerName">Your Name</label>
+                <input type="text" id="borrowerName" placeholder="Enter your full name">
+            </div>
+
+            <div class="form-group">
+                <label for="reserveDate">Choose Available Date (Mondays & Wednesdays)</label>
+                <select id="reserveDate">
+                    <!-- Populated automatically by JavaScript -->
+                </select>
+            </div>
+
+            <button class="reserve-btn" onclick="makeReservation()">Confirm Instant Reservation</button>
+
+            <div class="reservations-view">
+                <label>Existing Bookings for this item:</label>
+                <div id="existingReservations" style="margin-top: 5px;"></div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<script>
+
+    /*
+     * ============================================================
+     * GOOGLE SHEETS CONNECTION
+     * ============================================================
+     *
+     * Replace the URL below with your deployed
+     * Google Apps Script Web App URL.
+     */
+
+    const GOOGLE_SHEETS_API =
+        'https://script.google.com/a/macros/ue.edu.ph/s/AKfycby8ixvisiOOr6Pgh7Rtbca6yQEUN8OTf1c5keh0NAY0wfRQ--hKRqTAagrHKklO-ni5/exec';
+
+
+    /*
+     * ============================================================
+     * DATABASE
+     * ============================================================
+     */
+
+    let thesisDatabase = [];
+
+    let currentYear = null;
+
+    let currentCategory = "All";
+
+    let selectedBookId = null;
+
+
+    /*
+     * ============================================================
+     * INITIALIZATION
+     * ============================================================
+     */
+
+    async function init() {
+
+        showLoadingMessage();
+
+        try {
+
+            await loadThesesFromGoogleSheets();
+
+            if (thesisDatabase.length === 0) {
+
+                showCatalogMessage(
+                    'No thesis records were found.'
+                );
+
+                return;
+            }
+
+            /*
+             * Automatically select the newest year.
+             */
+            const years = [
+                ...new Set(
+                    thesisDatabase.map(book => book.year)
+                )
+            ].sort((a, b) => Number(b) - Number(a));
+
+            currentYear = years[0];
+
+            currentCategory = "All";
+
+            renderTabs();
+
+            renderFilters();
+
+            renderCatalog();
+
+            populateAvailableDates(8);
+
+        } catch (error) {
+
+            console.error(
+                'Error loading thesis database:',
+                error
+            );
+
+            showCatalogMessage(
+                'Unable to load the thesis catalog. Please try again later.'
+            );
+        }
+    }
+
+
+    /*
+     * ============================================================
+     * LOAD DATA FROM GOOGLE SHEETS
+     * ============================================================
+     */
+
+    async function loadThesesFromGoogleSheets() {
+
+        const response = await fetch(
+            GOOGLE_SHEETS_API,
+            {
+                method: 'GET',
+                cache: 'no-store'
+            }
+        );
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP error: ${response.status}`
+            );
+        }
+
+        const result = await response.json();
+
+        if (!result.success) {
+
+            throw new Error(
+                result.error || 'Google Sheets API error'
+            );
+        }
+
+        thesisDatabase = result.data.map(book => ({
+
+            id: Number(book.id),
+
+            year: String(book.year || ''),
+
+            title: String(book.title || ''),
+
+            author: String(
+                book.author || 'Author not listed'
+            ),
+
+            methodology: String(
+                book.methodology || 'Not specified'
+            ),
+
+            code: String(book.code || ''),
+
+            abstract: String(
+                book.abstract || 'No abstract available.'
+            ),
+
+            tags: Array.isArray(book.tags)
+                ? book.tags
+                : [],
+
+            copies: Number(book.copies || 0),
+
+            /*
+             * Reservations are currently stored only
+             * in this browser session.
+             */
+            reservations: []
+
+        }));
+
+        console.log(
+            `Loaded ${thesisDatabase.length} theses.`
+        );
+    }
+
+
+    /*
+     * ============================================================
+     * LOADING / ERROR DISPLAY
+     * ============================================================
+     */
+
+    function showLoadingMessage() {
+
+        const container =
+            document.getElementById('catalogList');
+
+        container.innerHTML = `
+            <p style="
+                color: var(--text-muted);
+                padding: 10px;
+            ">
+                Loading thesis catalog...
+            </p>
+        `;
+    }
+
+
+    function showCatalogMessage(message) {
+
+        const container =
+            document.getElementById('catalogList');
+
+        container.innerHTML = `
+            <p style="
+                color: var(--text-muted);
+                padding: 10px;
+            ">
+                ${message}
+            </p>
+        `;
+    }
+
+
+    /*
+     * ============================================================
+     * DATE GENERATOR
+     * ============================================================
+     */
+
+    function populateAvailableDates(weeksAhead = 8) {
+
+        const select =
+            document.getElementById('reserveDate');
+
+        select.innerHTML = '';
+
+        const today = new Date();
+
+        let count = 0;
+
+        for (
+            let i = 0;
+            count < weeksAhead * 2;
+            i++
+        ) {
+
+            const d = new Date();
+
+            d.setDate(
+                today.getDate() + i
+            );
+
+            const dayOfWeek = d.getDay();
+
+            /*
+             * 1 = Monday
+             * 3 = Wednesday
+             */
+
+            if (
+                dayOfWeek === 1 ||
+                dayOfWeek === 3
+            ) {
+
+                const isoDate =
+                    d.toISOString()
+                        .split('T')[0];
+
+                const formattedText =
+                    d.toLocaleDateString(
+                        'en-US',
+                        {
+                            weekday: 'long',
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                        }
+                    ).replace(',', ' -');
+
+                const option =
+                    document.createElement('option');
+
+                option.value = isoDate;
+
+                option.textContent =
+                    formattedText;
+
+                select.appendChild(option);
+
+                count++;
+            }
+        }
+    }
+
+
+    /*
+     * ============================================================
+     * YEAR TABS
+     * ============================================================
+     */
+
+    function renderTabs() {
+
+        const years = [
+            ...new Set(
+                thesisDatabase.map(
+                    book => book.year
+                )
+            )
+        ].sort(
+            (a, b) => Number(b) - Number(a)
+        );
+
+        const container =
+            document.getElementById('yearTabs');
+
+        container.innerHTML =
+            years.map(year => `
+
+                <button
+                    class="tab-btn ${
+                        year === currentYear
+                            ? 'active'
+                            : ''
+                    }"
+                    onclick="setYear('${escapeAttribute(year)}')"
+                >
+                    ${escapeHTML(year)}
+                </button>
+
+            `).join('');
+    }
+
+
+    /*
+     * ============================================================
+     * METHODOLOGY FILTERS
+     * ============================================================
+     */
+
+    function renderFilters() {
+
+        const methodologies = [
+            ...new Set(
+                thesisDatabase
+                    .map(book =>
+                        book.methodology
+                    )
+                    .filter(Boolean)
+            )
+        ].sort();
+
+        const categories = [
+            "All",
+            ...methodologies
+        ];
+
+        const container =
+            document.getElementById('catFilters');
+
+        container.innerHTML =
+            categories.map(category => `
+
+                <button
+                    class="cat-btn ${
+                        category === currentCategory
+                            ? 'active'
+                            : ''
+                    }"
+                    onclick="setCategory(
+                        '${escapeAttribute(category)}'
+                    )"
+                >
+                    ${escapeHTML(category)}
+                </button>
+
+            `).join('');
+    }
+
+
+    /*
+     * ============================================================
+     * CATALOG
+     * ============================================================
+     */
+
+    function renderCatalog() {
+
+        const query =
+            document
+                .getElementById('searchBar')
+                .value
+                .toLowerCase()
+                .trim();
+
+        const container =
+            document.getElementById('catalogList');
+
+
+        const filtered =
+            thesisDatabase.filter(book => {
+
+                const matchesYear =
+                    book.year === currentYear;
+
+
+                const matchesCat =
+                    currentCategory === "All" ||
+                    book.methodology === currentCategory;
+
+
+                const matchesSearch =
+
+                    book.title
+                        .toLowerCase()
+                        .includes(query)
+
+                    ||
+
+                    book.abstract
+                        .toLowerCase()
+                        .includes(query)
+
+                    ||
+
+                    book.author
+                        .toLowerCase()
+                        .includes(query)
+
+                    ||
+
+                    book.methodology
+                        .toLowerCase()
+                        .includes(query)
+
+                    ||
+
+                    book.tags.some(
+                        tag =>
+                            tag
+                                .toLowerCase()
+                                .includes(query)
+                    );
+
+
+                return (
+                    matchesYear &&
+                    matchesCat &&
+                    matchesSearch
+                );
+            });
+
+
+        if (filtered.length === 0) {
+
+            container.innerHTML = `
+                <p style="
+                    color: var(--text-muted);
+                    padding: 10px;
+                ">
+                    No matching theses found.
+                </p>
+            `;
+
+            return;
+        }
+
+
+        container.innerHTML =
+            filtered.map(book => `
+
+                <div
+                    class="book-card ${
+                        book.id === selectedBookId
+                            ? 'selected'
+                            : ''
+                    }"
+                    onclick="selectBook(${book.id})"
+                >
+
+                    <div class="book-title">
+                        ${escapeHTML(book.title)}
+                    </div>
+
+
+                    <div class="book-meta">
+
+                        <span>
+                            👤
+                            ${escapeHTML(book.author)}
+                        </span>
+
+                        <span>
+                            📂
+                            ${escapeHTML(
+                                book.methodology
+                            )}
+                        </span>
+
+                        <span>
+                            📅
+                            ${escapeHTML(book.year)}
+                        </span>
+
+                    </div>
+
+
+                    <div style="
+                        display:flex;
+                        gap:5px;
+                        flex-wrap:wrap;
+                    ">
+
+                        ${
+                            book.tags
+                                .map(tag => `
+
+                                    <span class="tag">
+                                        #${escapeHTML(tag)}
+                                    </span>
+
+                                `)
+                                .join('')
+                        }
+
+                    </div>
+
+                </div>
+
+            `).join('');
+    }
+
+
+    /*
+     * ============================================================
+     * YEAR SELECTION
+     * ============================================================
+     */
+
+    function setYear(year) {
+
+        currentYear = year;
+
+        currentCategory = "All";
+
+        renderTabs();
+
+        renderFilters();
+
+        renderCatalog();
+    }
+
+
+    /*
+     * ============================================================
+     * METHODOLOGY SELECTION
+     * ============================================================
+     */
+
+    function setCategory(category) {
+
+        currentCategory = category;
+
+        renderFilters();
+
+        renderCatalog();
+    }
+
+
+    /*
+     * ============================================================
+     * SELECT THESIS
+     * ============================================================
+     */
+
+    function selectBook(id) {
+
+        selectedBookId = id;
+
+        renderCatalog();
+
+
+        const book =
+            thesisDatabase.find(
+                b => b.id === id
+            );
+
+
+        if (!book) {
+            return;
+        }
+
+
+        document.getElementById(
+            'panelTitle'
+        ).innerText = book.title;
+
+
+        document.getElementById(
+            'panelAbstract'
+        ).innerText =
+            book.abstract;
+
+
+        document.getElementById(
+            'panelContent'
+        ).style.display = 'flex';
+
+
+        updateReservationsList(book);
+    }
+
+
+    /*
+     * ============================================================
+     * RESERVATION DISPLAY
+     * ============================================================
+     */
+
+    function updateReservationsList(book) {
+
+        const container =
+            document.getElementById(
+                'existingReservations'
+            );
+
+
+        if (
+            !book.reservations ||
+            book.reservations.length === 0
+        ) {
+
+            container.innerHTML = `
+                <p style="
+                    color: var(--text-muted)
+                ">
+                    No active reservations.
+                    All dates open.
+                </p>
+            `;
+
+            return;
+        }
+
+
+        container.innerHTML =
+            book.reservations
+                .map(reservation => `
+
+                    <div class="res-item">
+
+                        <span class="res-date">
+                            🗓️
+                            ${escapeHTML(
+                                reservation.date
+                            )}
+                        </span>
+
+                        <span>
+                            Claimed by:
+                            ${escapeHTML(
+                                reservation.name
+                            )}
+                        </span>
+
+                    </div>
+
+                `)
+                .join('');
+    }
+
+
+    /*
+     * ============================================================
+     * RESERVATION
+     * ============================================================
+     */
+
+    function makeReservation() {
+
+        const name =
+            document
+                .getElementById('borrowerName')
+                .value
+                .trim();
+
+
+        const date =
+            document
+                .getElementById('reserveDate')
+                .value;
+
+
+        if (!name) {
+
+            alert(
+                'Please enter your name to book!'
+            );
+
+            return;
+        }
+
+
+        const book =
+            thesisDatabase.find(
+                b => b.id === selectedBookId
+            );
+
+
+        if (!book) {
+
+            alert(
+                'Please select a thesis first.'
+            );
+
+            return;
+        }
+
+
+        const exists =
+            book.reservations.some(
+                reservation =>
+                    reservation.date === date
+            );
+
+
+        if (exists) {
+
+            alert(
+                'This specific thesis is already reserved for that date! Please select another open Monday or Wednesday.'
+            );
+
+            return;
+        }
+
+
+        book.reservations.push({
+
+            date: date,
+
+            name: name
+
+        });
+
+
+        alert(
+            `Successfully reserved "${book.title}" for ${date}!`
+        );
+
+
+        document.getElementById(
+            'borrowerName'
+        ).value = '';
+
+
+        updateReservationsList(book);
+    }
+
+
+    /*
+     * ============================================================
+     * SECURITY / DISPLAY HELPERS
+     * ============================================================
+     *
+     * These prevent text from the spreadsheet
+     * from being interpreted as HTML.
+     */
+
+    function escapeHTML(value) {
+
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+
+    function escapeAttribute(value) {
+
+        return String(value ?? '')
+            .replace(/\\/g, '\\\\')
+            .replace(/'/g, "\\'");
+    }
+
+
+    /*
+     * ============================================================
+     * SEARCH
+     * ============================================================
+     */
+
+    document
+        .getElementById('searchBar')
+        .addEventListener(
+            'input',
+            renderCatalog
+        );
+
+
+    /*
+     * ============================================================
+     * START
+     * ============================================================
+     */
+
+    init();
+
+</script>
+</body>
+</html>
