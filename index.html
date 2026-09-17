@@ -3,276 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thesis Book Reservation Portal</title>
+    <title>Thesis Book Reservation System</title>
     <style>
         :root {
-            --primary: #1e3a8a;
-            --secondary: #3b82f6;
-            --accent: #10b981;
-            --bg: #f1f5f9;
+            --primary-color: #2b6cb0;
+            --primary-hover: #2c5282;
+            --bg-color: #f7fafc;
             --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-light: #64748b;
-            --border: #cbd5e1;
+            --text-color: #2d3748;
+            --border-color: #e2e8f0;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
             margin: 0;
             padding: 20px;
-            line-height: 1.5;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 30px 20px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 10px rgb(0 0 0 / 0.05);
-        }
-
-        header h1 { margin: 0 0 8px 0; font-size: 2.2rem; }
-        header p { margin: 0; opacity: 0.9; font-size: 1rem; }
-
-        .filter-bar {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgb(0 0 0 / 0.02);
-        }
-
-        .search-box {
-            flex: 2;
-            min-width: 280px;
-            padding: 10px 16px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 0.95rem;
-        }
-
-        .filter-select {
-            flex: 1;
-            min-width: 200px;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background-color: white;
-            font-size: 0.95rem;
-        }
-
-        .year-section {
-            margin-bottom: 40px;
-        }
-
-        .year-header {
-            font-size: 1.6rem;
-            color: var(--primary);
-            border-bottom: 2px solid var(--secondary);
-            padding-bottom: 6px;
-            margin-bottom: 20px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
+            max-width: 650px;
+            margin: 40px auto;
             background: var(--card-bg);
-            border: 1px solid rgb(226, 232, 240);
-            border-radius: 8px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 2px 5px rgb(0 0 0 / 0.02);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 12px rgb(0 0 0 / 0.08);
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin: 0 0 10px 0;
-        }
-
-        .meta-field {
-            font-size: 0.85rem;
-            margin: 4px 0;
-            color: var(--text-light);
-        }
-
-        .meta-label {
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .tags-wrapper {
-            display: flex;
-            gap: 6px;
-            margin: 12px 0;
-            flex-wrap: wrap;
-        }
-
-        .badge {
-            font-size: 0.75rem;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-
-        .badge-method { background: #e0f2fe; color: #0369a1; }
-        .badge-copies { background: #fef3c7; color: #b45309; }
-
-        .reserve-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 14px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            transition: background 0.2s;
-        }
-
-        .reserve-btn:hover { background-color: var(--secondary); }
-
-        /* Modal styling layout matching target reservation canvas */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.2s ease;
-            z-index: 1000;
-        }
-
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-
-        .modal-window {
-            background: white;
-            width: 100%;
-            max-width: 500px;
+            padding: 30px;
             border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1);
-            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        .modal-close {
-            position: absolute;
-            top: 15px; right: 15px;
-            border: none; background: none;
-            font-size: 1.4rem; cursor: pointer; color: var(--text-light);
-        }
-
-        .modal-window h3 { margin: 0 0 6px 0; color: var(--primary); }
-        .book-target { font-weight: 600; margin-bottom: 20px; color: var(--text); background: #f8fafc; padding: 10px; border-left: 4px solid var(--secondary); font-size: 0.95rem; }
-
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; }
-        .form-input { width: 93%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; }
-
-        .date-select-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 5px;
-        }
-
-        .date-option {
+        h1 {
+            font-size: 1.8rem;
+            margin-top: 0;
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            cursor: pointer;
+            color: #1a202c;
         }
 
-        .date-option input { margin: 0; }
-        .confirm-btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; font-size: 1rem; margin-top: 10px; }
-        .confirm-btn:hover { opacity: 0.9; }
+        h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+
+        .abstract-box {
+            background-color: #f8fafc;
+            border-left: 4px solid var(--primary-color);
+            padding: 15px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.95rem;
+            color: #4a5568;
+            min-height: 60px;
+        }
+
+        .btn {
+            display: width;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .bookings-section {
+            margin-top: 30px;
+            border-top: 2px dashed var(--border-color);
+            padding-top: 20px;
+        }
+
+        .bookings-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .bookings-list li {
+            padding: 10px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .no-bookings {
+            color: #a0aec0;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>📚 Thesis Catalog & Book Reservation</h1>
-        <p>Browse listings, filter parameters, and schedule instant physical copy checkouts.</p>
-    </header>
+    <h1>📚 Thesis Catalog & Book Reservation</h1>
 
-    <div class="filter-bar">
-        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search book titles, authors, or keywords...">
-        <select id="methodFilter" class="filter-select">
-            <option value="all">All Methodologies</option>
-            <option value="Phenomenological">Phenomenological</option>
-            <option value="Narrative">Narrative</option>
-            <option value="Case Study">Case Study</option>
-            <option value="Correlational">Correlational</option>
-            <option value="Quantitative">Quantitative / Experimental</option>
-            <option value="Mixed Methods">Mixed Methods</option>
-        </select>
+    <form id="reservationForm">
+        <!-- 1. Select a book to reserve -->
+        <div class="form-group">
+            <label for="bookSelect">Select a book to reserve</label>
+            <select id="bookSelect" required>
+                <option value="" disabled selected>-- Choose a Thesis Book --</option>
+                <option value="thesis-1">AI-Driven Traffic Management Systems in Smart Cities (2025)</option>
+                <option value="thesis-2">Blockchain Applications for Secure Electronic Health Records (2026)</option>
+                <option value="thesis-3">The Impact of Remote Work on Software Engineering Productivity (2026)</option>
+                <option value="thesis-4">An Analysis of Microplastic Concentrations in Local Marine Environments (2025)</option>
+            </select>
+        </div>
+
+        <!-- 2. Abstract Preview -->
+        <div class="form-group">
+            <h3>Abstract Preview</h3>
+            <div id="abstractPreview" class="abstract-box">Please select a thesis book above to view its abstract preview.</div>
+        </div>
+
+        <!-- 3. Your Name -->
+        <div class="form-group">
+            <label for="userName">Your Name</label>
+            <input type="text" id="userName" placeholder="Enter your full name" required>
+        </div>
+
+        <!-- 4. Choose Available Date -->
+        <div class="form-group">
+            <label for="dateSelect">Choose Available Date (Only Open Days)</label>
+            <select id="dateSelect" required>
+                <option value="" disabled selected>-- Select an open date --</option>
+                <option value="Wednesday - Sep 16, 2026">Wednesday - Sep 16, 2026</option>
+                <option value="Saturday - Sep 19, 2026">Saturday - Sep 19, 2026</option>
+                <option value="Wednesday - Sep 23, 2026">Wednesday - Sep 23, 2026</option>
+                <option value="Saturday - Sep 26, 2026">Saturday - Sep 26, 2026</option>
+            </select>
+        </div>
+
+        <!-- 5. Confirm Button -->
+        <button type="submit" class="btn">Confirm Instant Reservation</button>
+    </form>
+
+    <!-- 6. Existing Bookings -->
+    <div class="bookings-section">
+        <h3>Existing Bookings for this item:</h3>
+        <ul id="bookingsList" class="bookings-list">
+            <li class="no-bookings">No current reservations for this item.</li>
+        </ul>
     </div>
+</div>
 
-    <!-- 2025 Block -->
-    <section class="year-section">
-        <div class="year-header">2025 Collection</div>
-        <div class="grid">
-            <div class="card" data-method="Narrative">
-                <div>
-                    <h4 class="card-title">Exploring the Stories of Filipino Middle-Aged Single Mothers by Choice</h4>
-                    <div class="meta-field"><span class="meta-label">Authors:</span> Bernardo, M. T., Casteñeda, D. R., Dela Cruz, A. N., Paccial, D. S.</div>
-                    <div class="meta-field"><span class="meta-label">Keywords:</span> Single mothers, Singlehood, Motherhood, Choice</div>
-                </div>
-                <div>
-                    <div class="tags-wrapper"><span class="badge badge-method">Narrative</span><span class="badge badge-copies">Copies: 2</span></div>
-                    <button class="reserve-btn">Reserve Book</button>
-                </div>
-            </div>
+<script>
+    // Data dictionary for abstracts
+    const abstracts = {
+        'thesis-1': 'This study explores the integration of real-time machine learning algorithms with smart city IoT infrastructure to optimize urban traffic flows and reduce carbon emissions.',
+        'thesis-2': 'A framework proposing a decentralized ledger system designed to give patients granular control over their medical history while preserving cryptographic data security.',
+        'thesis-3': 'An empirical analysis evaluating software development velocity, team communication friction, and developer burnout across hybrid and fully remote operating models.',
+        'thesis-4': 'This research maps the degradation patterns and density metrics of synthetic micro-polymers collected across regional coastal water baselines.'
+    };
 
-            <div class="card" data-method="Narrative">
-                <div>
-                    <h4 class="card-title">Fueling the Fire: A Narrative Study on the Motivational Attributions of Filipino Athletes in Tactical Sports</h4>
-                    <div class="meta-field"><span class="meta-label">Authors:</span> Afable, K. P., Celocia, M. F., Clemente, A. D., Dela Rosa, M. A.</div>
-                    <div class="meta-field"><span class="meta-label">Keywords:</span> Motivation, Tactical sports, Judokas, Fencers</div>
-                </div>
-                <div>
-                    <div class="tags-wrapper"><span class="badge badge-method">Narrative</span><span class="badge badge-copies">Copies: 1</span></div>
-                    <button class="reserve-btn">Reserve Book</button>
-                </div>
-            </div>
+    const bookSelect = document.getElementById('bookSelect');
+    const abstractPreview = document.getElementById('abstractPreview');
+    const reservationForm = document.getElementById('reservationForm');
+    const bookingsList = document.getElementById('bookingsList');
 
-            <div class="card" data-method="Phenomenological">
-                <div>
-                    <h4 class="card-title">A Paradigm Shift: Exploring the Role Reversal Experiences of Filipino Househusbands</h4>
-                    <div class="meta-field"><span class="meta-label">Authors:</span> Macaraig, N. A., Romero, J. C., Suarez, T. J., Agullana, J. C.</div>
-                    <div class="meta-field"><span class="meta-label">Keywords:</span> Househusbands, Gender Roles, Masculinity, Caregiving</div>
-                </div>
-                <div>
-                    <div class="tags-wrapper"><span class="badge badge-method">Phenomenological</span><span class="badge badge-copies">Copies: 2</span></div>
+    // Object to track mock reservations dynamically per book
+    const activeBookings = {
+        'thesis-1': [],
+        'thesis-2': [],
+        'thesis-3': [],
+        'thesis-4': []
+    };
+
+    // Update abstract and booking list when a book is picked
+    bookSelect.addEventListener('change', function() {
+        const selectedId = this.value;
+        
+        // Update Abstract
+        abstractPreview.textContent = abstracts[selectedId] || '';
+
+        // Update Existing Bookings display
+        renderBookings(selectedId);
+    });
+
+    function renderBookings(bookId) {
+        bookingsList.innerHTML = '';
+        const list = activeBookings[bookId] || [];
+
+        if (list.length === 0) {
+            bookingsList.innerHTML = '<li class="no-bookings">No current reservations for this item.</li>';
+        } else {
+            list.forEach(booking => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span><strong>${booking.name}</strong></span> <span>📅 ${booking.date}</span>`;
+                bookingsList.appendChild(li);
+            });
+        }
+    }
+
+    // Handle form submission
+    reservationForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const bookId = bookSelect.value;
+        const name = document.getElementById('userName').value;
+        const date = document.getElementById('dateSelect').value;
+
+        if (!bookId) {
+            alert('Please select a book first!');
+            return;
+        }
+
+        // Add to our simulated data
+        activeBookings[bookId].push({ name, date });
+
+        // Refresh view & reset name fields
+        renderBookings(bookId);
+        document.getElementById('userName').value = '';
+        document.getElementById('dateSelect').selectedIndex = 0;
+
+        alert('Reservation successfully added!');
+    });
+</script>
+
+</body>
+</html>
