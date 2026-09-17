@@ -3,267 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Psychology Thesis Book Reservation System</title>
-    <!-- SheetJS for live cloud sheet reading -->
-    <script src="https://jsdelivr.net"></script>
+    <title>Psychology Thesis Research Room Reservation</title>
     <style>
         :root {
-            --pink: #FF66C4;
-            --green: #A8E6CF;
-            --dark: #2B2D42;
-            --light: #F7F9FA;
-            --text: #1A1A1A;
-            --white: #FFFFFF;
-            --gray: #7F8C8D;
+            --bg-color: #0d0e12;
+            --surface-color: #161920;
+            --surface-accent: #1f242e;
+            --text-color: #e4e7eb;
+            --text-muted: #8892b0;
+            --accent-pink: #ff65a3;
+            --accent-mint: #26e6a4;
+            --border-color: #2a313d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            line-height: 1.6;
         }
 
         header {
-            background-color: var(--dark);
-            color: var(--white);
             text-align: center;
-            padding: 25px 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 20px auto 30px auto;
+            max-width: 1300px;
         }
 
-        header h1 { margin: 0; font-size: 24px; letter-spacing: 0.5px; }
+        header h1 {
+            color: var(--accent-mint);
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-        /* Strict policy warning banner */
-        .policy-banner {
-            background-color: #FFF3CD;
-            color: #856404;
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .alert-banner {
+            background-color: rgba(255, 101, 163, 0.08);
+            border: 1px solid var(--accent-pink);
+            color: var(--accent-pink);
+            padding: 14px;
+            border-radius: 8px;
             text-align: center;
-            padding: 12px 15px;
-            font-weight: bold;
-            font-size: 14px;
-            border-bottom: 2px solid #FFEBAA;
+            max-width: 1300px;
+            margin: 0 auto 30px auto;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .container {
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 0 15px;
+            max-width: 1300px;
+            margin: 0 auto;
             display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 20px;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 25px;
         }
 
-        /* Left Side: Catalog Explorer */
-        .catalog-section {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        @media (max-width: 950px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
         }
 
-        /* Right Side: Reservation Panel */
-        .reservation-section {
-            background-color: var(--white);
-            padding: 25px;
+        .panel {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 20px;
-            height: fit-content;
-            border-top: 5px solid var(--pink);
+            padding: 25px;
         }
 
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
+        .panel h2 {
+            color: var(--text-color);
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--surface-accent);
         }
 
-        .metric-card {
-            background-color: var(--white);
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 5px solid var(--green);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-        }
-
-        .metric-card p { margin: 0; color: var(--gray); font-size: 12px; font-weight: bold; text-transform: uppercase; }
-        .metric-card h2 { margin: 5px 0 0 0; font-size: 20px; color: var(--dark); }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 15px;
-            font-size: 16px;
-            border: 2px solid #E0E0E0;
+        .sync-box {
+            background-color: var(--surface-accent);
             border-radius: 8px;
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.3s;
-            margin-bottom: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-mint);
         }
 
-        .search-input:focus { border-color: var(--pink); }
-
-        .thesis-card {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            border: 2px solid transparent;
+        .config-toggle {
+            font-size: 0.8rem;
+            color: var(--accent-mint);
             cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .thesis-card:hover { border-color: var(--green); transform: translateY(-2px); }
-        .thesis-card.selected { border-color: var(--pink); background-color: #FFF5FA; }
-
-        .thesis-title { font-size: 17px; font-weight: bold; color: var(--dark); margin: 0 0 10px 0; }
-        .meta-line { font-size: 13px; margin: 5px 0; color: #555; display: flex; }
-        .meta-label { font-weight: bold; color: var(--gray); width: 110px; flex-shrink: 0; }
-        
-        .badge {
+            text-decoration: underline;
+            margin-bottom: 10px;
             display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-top: 8px;
-        }
-        .badge-available { background-color: #E8F8F2; color: #1E7E56; }
-        .badge-unavailable { background-color: #FEECEB; color: #C0392B; }
-
-        /* Form styling */
-        label { display: block; font-weight: bold; margin-top: 15px; margin-bottom: 5px; font-size: 14px; }
-        input[type="text"], select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #CCC;
-            border-radius: 6px;
-            box-sizing: border-box;
         }
 
-        .reserve-btn {
-            background-color: var(--pink);
-            color: var(--white);
-            border: none;
+        .config-fields {
+            display: none;
+            margin-top: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], input[type="date"] {
             width: 100%;
             padding: 12px;
-            font-size: 15px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.2s;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
         }
 
-        .reserve-btn:hover { background-color: #E055AF; }
-        .reserve-btn:disabled { background-color: #BDC3C7; cursor: not-allowed; }
+        input:focus {
+            outline: none;
+            border-color: var(--accent-mint);
+        }
 
-        .room-policy-note {
-            background-color: #F4F6F7;
+        .btn {
+            background-color: var(--accent-mint);
+            color: #0b0c10;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.95rem;
+            width: 100%;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn:hover { opacity: 0.9; }
+        .btn-pink { background-color: var(--accent-pink); color: #0b0c10; }
+
+        /* Year Navigation Tabs */
+        .tabs-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .tab-btn {
+            background-color: var(--surface-accent);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--accent-mint);
+            color: var(--text-color);
+        }
+
+        .tab-btn.active {
+            background-color: rgba(255, 101, 163, 0.15);
+            color: var(--accent-pink);
+            border-color: var(--accent-pink);
+        }
+
+        .search-input {
+            margin-bottom: 20px;
+            border-color: var(--accent-pink) !important;
+        }
+
+        .catalog-list {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .item-card {
+            background-color: var(--surface-accent);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
+
+        .item-title {
+            color: var(--accent-pink);
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .item-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .item-badge {
+            background: #252d3a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-mint);
+        }
+
+        .item-abstract {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+            background: rgba(0,0,0,0.2);
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid var(--border-color);
+        }
+
+        .select-action {
+            background-color: transparent;
+            color: var(--accent-mint);
+            border: 1px solid var(--accent-mint);
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            width: auto;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .select-action:hover {
+            background-color: rgba(38, 230, 164, 0.1);
+        }
+
+        .status {
             padding: 10px;
             border-radius: 6px;
-            font-size: 12px;
-            color: #555;
-            margin-top: 15px;
-            border-left: 3px solid var(--dark);
+            margin-top: 10px;
+            font-size: 0.85rem;
+            display: none;
+        }
+        .status.success { background: rgba(38, 230, 164, 0.1); color: var(--accent-mint); border: 1px solid var(--accent-mint); }
+        .status.error { background: rgba(255, 101, 163, 0.1); color: var(--accent-pink); border: 1px solid var(--accent-pink); }
+
+        .receipt {
+            margin-top: 20px;
+            background: #000;
+            border: 1px dashed var(--accent-mint);
+            border-radius: 6px;
+            padding: 15px;
+            font-family: monospace;
+            display: none;
         }
 
-        .loading-text { text-align: center; color: var(--gray); font-style: italic; padding: 20px; }
-
-        @media (max-width: 768px) {
-            .container { grid-template-columns: 1fr; }
-            .reservation-section { position: relative; top: 0; }
-        }
+        .receipt h3 { color: var(--accent-mint); margin-bottom: 10px; font-size: 1rem; }
+        .receipt p { font-size: 0.85rem; margin-bottom: 5px; color: #fff; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>📚 Thesis Catalog & Book Reservation</h1>
+        <h1>Psychology Thesis Archival Log</h1>
+        <p>In-Room Consultation & Reservation Terminal</p>
     </header>
 
-    <div class="policy-banner">
-        ⚠️ IMPORTANT POLICY: Theses cannot be checked out or taken home. They are strictly for reading inside the Research Room only.
+    <div class="alert-banner">
+        🔒 Reading Protocol: Theses are strict non-lending assets. Materials must remain within the Research Room boundary.
     </div>
 
     <div class="container">
         
-        <!-- LEFT: CATALOG SPACE -->
-        <div class="catalog-section">
-            <div class="metrics-grid">
-                <div class="metric-card"><p>Catalog Titles</p><h2 id="totalTitles">--</h2></div>
-                <div class="metric-card"><p>Physical Inventory</p><h2 id="totalCopies">--</h2></div>
-            </div>
-
-            <input type="text" id="searchInput" class="search-input" onkeyup="filterCatalog()" placeholder="🔍 Search Title, Author, Methodology, Code, or Year...">
+        <!-- Left Column: Catalog and Filters -->
+        <div class="panel">
+            <h2>Archival Catalog</h2>
             
-            <div id="loading" class="loading-text">Synchronizing direct cloud data layers...</div>
-            <div id="catalogList"></div>
-        </div>
-
-        <!-- RIGHT: LIVE RESERVATION WINDOW -->
-        <div class="reservation-section">
-            <h3 style="margin-top: 0; color: var(--dark);">📋 Reserve a Book</h3>
-            
-            <div id="selectedBookDetails">
-                <p style="color: var(--gray); font-style: italic;">Select a book from the catalog list to start your reservation booking layout.</p>
-            </div>
-
-            <form id="reservationForm" onsubmit="executeReservation(event)" style="display: none;">
-                <label for="studentName">Your Full Name:</label>
-                <input type="text" id="studentName" required placeholder="Enter your full name">
-
-                <label for="reservationDate">Choose Available Date (Mon & Wed Only):</label>
-                <select id="reservationDate" required></select>
-
-                <div class="room-policy-note">
-                    📌 <strong>Research Room Use Only:</strong> By submitting, you understand this reservation holds your physical copy for collection to read inside the research room on your selected date.
-                </div>
-
-                <button type="submit" class="reserve-btn">Confirm Instant Reservation</button>
-            </form>
-        </div>
-
-    </div>
-
-    <script>
-        // Uses the bypass parameters to extract live elements smoothly
-        const GOOGLE_SHEET_URL = "https://google.com";
-        const HEADER_ROW_INDEX = 2; // Row 3
-        let MASTER_DATASET = [];
-        let SELECTED_ITEM = null;
-
-        async function fetchSpreadsheetData() {
-            try {
-                const response = await fetch(GOOGLE_SHEET_URL);
-                const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
-                
-                MASTER_DATASET = [];
-                let runningTitlesCount = 0;
-                let runningCopiesCount = 0;
-
-                workbook.SheetNames.forEach(sheetName => {
-                    if (sheetName.includes("Copy of")) return;
-
-                    const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, defval: "" });
-                    if (rawRows.length <= HEADER_ROW_INDEX) return;
-
-                    const headers = rawRows[HEADER_ROW_INDEX].map(h => String(h).trim().toLowerCase());
+            <div class="sync-box">
+                <span class="config-toggle" onclick="toggleConfig()">⚙️ View Data Source Configuration</span>
+                <div id="configFields" class="config-fields">
+                    <label for="csvUrl">Google Sheet URL / ID:</label>
+                    <input type="text" id="csvUrl" value="1oDOxTFzV8SvjXDtG210o184E7e-N_2V89IPKXr7imZU">
                     
-                    const codeIdx = headers.indexOf('code');
-                    const titleIdx = headers.indexOf('title');
-                    const authorIdx = headers.indexOf('author');
-                    const methodIdx = headers.indexOf('methodology');
-                    const copiesIdx = headers.indexOf('copies');
+                    <label for="sheetTabs">Catalog Cohort Tabs:</label>
+                    <input type="text" id="sheetTabs" value="2016, 2017, 2018, 2019, 2022, 2023, 2024, 2025">
+                    
+                    <button class="btn" onclick="initializeMultiTabSync()">Re-Sync Workspace</button>
+                </div>
+                <div id="syncStatus" class="status" style="display:block; background: rgba(38, 230, 164, 0.05);">Ready to sync catalog database...</div>
+            </div>
 
-                    for (let i = HEADER_ROW_INDEX + 1; i < rawRows.length; i++) {
-                        const row = rawRows[i];
-                        if (!row || row.length === 0) continue;
+            <!-- Dynamic Year Cohort Selection Tabs -->
+            <div class="tabs-container" id="tabsWrapper"></div>
 
-                        let rawTitle = titleIdx !== -1 ? String(row[titleIdx] || "").trim() : "";
-                        let rawAuthor = authorIdx !== -1 ? String(row[authorIdx] || "").trim() : "";
-                        let rawCode = codeIdx !== -1 ? String(row[codeIdx] || "").trim() : "";
+            <input type="text" id="search" class="search-input" placeholder="Search topics, authors, methodologies, keywords..." oninput="filterCatalog()">
+
+            <div class="catalog-list" id="catalogBox">
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Connecting to archival cloud sheets...</p>
+            </div>
+        </div>
+
+        <!-- Right Column: Instant Booking Entry Form -->
+        <div class="panel" style="height: fit-content;">
+            <h2>Research Desk Booking</h2>
+            
+            <div class="sync-box" style="border-left-color: var(--accent-pink)">
+                <p style="font-size: 0.85rem; color: var(--text-color);">
+                    <strong>Operation Matrix:</strong> Open only Mondays & Wednesdays.<br>
