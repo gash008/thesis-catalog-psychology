@@ -104,7 +104,7 @@
             color: var(--accent-mint);
             cursor: pointer;
             text-decoration: underline;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             display: inline-block;
         }
 
@@ -141,17 +141,17 @@
             background-color: var(--accent-mint);
             color: #0b0c10;
             border: none;
-            padding: 12px 20px;
+            padding: 10px 16px;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 0.95rem;
-            width: 100%;
+            font-size: 0.9rem;
+            width: auto;
             transition: opacity 0.2s ease;
         }
 
         .btn:hover { opacity: 0.9; }
-        .btn-pink { background-color: var(--accent-pink); color: #0b0c10; }
+        .btn-pink { background-color: var(--accent-pink); color: #0b0c10; width: 100%; padding: 12px; }
 
         /* Year Navigation Tabs */
         .tabs-container {
@@ -296,17 +296,21 @@
             <h2>Archival Catalog</h2>
             
             <div class="sync-box">
-                <span class="config-toggle" onclick="toggleConfig()">⚙️ View Data Source Configuration</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="config-toggle" onclick="toggleConfig()">⚙️ Manage Data Source & Cache</span>
+                    <button class="btn" onclick="clearCacheAndRefresh()" style="font-size:0.75rem; padding: 4px 8px;">🔄 Clear Cache & Refresh Tab</button>
+                </div>
+                
                 <div id="configFields" class="config-fields">
-                    <label for="csvUrl">Google Sheet URL / ID:</label>
+                    <label for="csvUrl">Google Sheet ID:</label>
                     <input type="text" id="csvUrl" value="1oDOxTFzV8SvjXDtG210o184E7e-N_2V89IPKXr7imZU">
                     
                     <label for="sheetTabs">Catalog Cohort Tabs:</label>
                     <input type="text" id="sheetTabs" value="2016, 2017, 2018, 2019, 2022, 2023, 2024, 2025">
                     
-                    <button class="btn" onclick="initializeMultiTabSync()">Re-Sync Workspace</button>
+                    <button class="btn" onclick="setupWorkspace()">Rebuild Tabs Layout</button>
                 </div>
-                <div id="syncStatus" class="status" style="display:block; background: rgba(38, 230, 164, 0.05);">Ready to sync catalog database...</div>
+                <div id="syncStatus" class="status" style="display:block; background: rgba(38, 230, 164, 0.05); margin-top: 8px;">System active. Loading catalogs locally...</div>
             </div>
 
             <!-- Dynamic Year Cohort Selection Tabs -->
@@ -315,14 +319,9 @@
             <input type="text" id="search" class="search-input" placeholder="Search topics, authors, methodologies, keywords..." oninput="filterCatalog()">
 
             <div class="catalog-list" id="catalogBox">
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Connecting to archival cloud sheets...</p>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Initializing navigation workspace...</p>
             </div>
         </div>
 
         <!-- Right Column: Instant Booking Entry Form -->
         <div class="panel" style="height: fit-content;">
-            <h2>Research Desk Booking</h2>
-            
-            <div class="sync-box" style="border-left-color: var(--accent-pink)">
-                <p style="font-size: 0.85rem; color: var(--text-color);">
-                    <strong>Operation Matrix:</strong> Open only Mondays & Wednesdays.<br>
