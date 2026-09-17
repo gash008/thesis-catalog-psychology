@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Psychology Thesis Catalog</title>
-    <!-- SheetJS for reading the Google Sheet Excel stream directly -->
+    <title>Psychology Thesis Book Reservation System</title>
+    <!-- SheetJS for live cloud sheet reading -->
     <script src="https://jsdelivr.net"></script>
     <style>
         :root {
@@ -14,6 +14,7 @@
             --light: #F7F9FA;
             --text: #1A1A1A;
             --white: #FFFFFF;
+            --gray: #7F8C8D;
         }
 
         body {
@@ -33,55 +34,65 @@
         }
 
         header h1 { margin: 0; font-size: 24px; letter-spacing: 0.5px; }
-        
-        /* Notice block for scheduling rules */
-        .notice-bar {
-            background-color: #ffe6f2;
-            color: #d0147e;
+
+        /* Strict policy warning banner */
+        .policy-banner {
+            background-color: #FFF3CD;
+            color: #856404;
             text-align: center;
-            padding: 10px;
+            padding: 12px 15px;
             font-weight: bold;
             font-size: 14px;
-            border-bottom: 2px solid var(--pink);
+            border-bottom: 2px solid #FFEBAA;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 20px auto;
             padding: 0 15px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 20px;
         }
 
-        /* Stat Counter Summary Cards styled with your palette match */
+        /* Left Side: Catalog Explorer */
+        .catalog-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Right Side: Reservation Panel */
+        .reservation-section {
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            border-top: 5px solid var(--pink);
+        }
+
         .metrics-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
 
         .metric-card {
             background-color: var(--white);
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
-            border-left: 6px solid var(--green);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--green);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
         }
 
-        .metric-card p { margin: 0; color: #7F8C8D; font-size: 13px; font-weight: bold; text-transform: uppercase; }
-        .metric-card h2 { margin: 5px 0 0 0; font-size: 22px; color: var(--dark); }
+        .metric-card p { margin: 0; color: var(--gray); font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        .metric-card h2 { margin: 5px 0 0 0; font-size: 20px; color: var(--dark); }
 
-        /* Search Section UI Box */
-        .search-box {
-            background-color: var(--white);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
-        }
-
-        .search-box h3 { margin-top: 0; margin-bottom: 15px; color: var(--dark); }
-
-        .search-box input {
+        .search-input {
             width: 100%;
             padding: 12px 15px;
             font-size: 16px;
@@ -90,109 +101,142 @@
             box-sizing: border-box;
             outline: none;
             transition: border-color 0.3s;
+            margin-bottom: 15px;
         }
 
-        .search-box input:focus { border-color: var(--pink); }
-
-        /* Sync Button UI styling */
-        .sync-btn {
-            background-color: var(--pink);
-            color: var(--white);
-            border: none;
-            padding: 12px 24px;
-            font-size: 15px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 20px;
-            transition: background 0.2s;
-        }
-
-        .sync-btn:hover { background-color: #E055AF; }
-
-        /* Responsive Mobile Catalog Layout Cards */
-        .catalog-list { display: flex; flex-direction: column; gap: 15px; }
+        .search-input:focus { border-color: var(--pink); }
 
         .thesis-card {
             background: var(--white);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-            border: 1px solid #EAEAEA;
-            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .thesis-title { font-size: 18px; font-weight: bold; color: var(--dark); margin: 0 0 10px 0; }
-        .meta-line { font-size: 14px; margin: 6px 0; color: #555; }
-        .meta-label { font-weight: 6px; color: #7F8C8D; display: inline-block; width: 105px; }
+        .thesis-card:hover { border-color: var(--green); transform: translateY(-2px); }
+        .thesis-card.selected { border-color: var(--pink); background-color: #FFF5FA; }
+
+        .thesis-title { font-size: 17px; font-weight: bold; color: var(--dark); margin: 0 0 10px 0; }
+        .meta-line { font-size: 13px; margin: 5px 0; color: #555; display: flex; }
+        .meta-label { font-weight: bold; color: var(--gray); width: 110px; flex-shrink: 0; }
         
-        /* Interactive Badge highlighting if copy allocations exist */
         .badge {
             display: inline-block;
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
-            margin-top: 5px;
+            margin-top: 8px;
         }
-        .badge-available { background-color: #E8F8F2; color: #1E7E56; border: 1px solid var(--green); }
+        .badge-available { background-color: #E8F8F2; color: #1E7E56; }
         .badge-unavailable { background-color: #FEECEB; color: #C0392B; }
 
-        .loading-text { text-align: center; color: #7F8C8D; font-style: italic; padding: 20px; }
+        /* Form styling */
+        label { display: block; font-weight: bold; margin-top: 15px; margin-bottom: 5px; font-size: 14px; }
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #CCC;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
 
-        @media (max-width: 600px) {
-            .metrics-grid { grid-template-columns: 1fr; }
+        .reserve-btn {
+            background-color: var(--pink);
+            color: var(--white);
+            border: none;
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+
+        .reserve-btn:hover { background-color: #E055AF; }
+        .reserve-btn:disabled { background-color: #BDC3C7; cursor: not-allowed; }
+
+        .room-policy-note {
+            background-color: #F4F6F7;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #555;
+            margin-top: 15px;
+            border-left: 3px solid var(--dark);
+        }
+
+        .loading-text { text-align: center; color: var(--gray); font-style: italic; padding: 20px; }
+
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+            .reservation-section { position: relative; top: 0; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>📚 Psychology Thesis Catalog</h1>
+        <h1>📚 Thesis Catalog & Book Reservation</h1>
     </header>
-    
-    <!-- Visual Alert clarifying operational timeline changes -->
-    <div class="notice-bar">
-        🏛️ Library Availability Note: Counter reservations and pick-ups are available on MONDAYS and WEDNESDAYS only.
+
+    <div class="policy-banner">
+        ⚠️ IMPORTANT POLICY: Theses cannot be checked out or taken home. They are strictly for reading inside the Research Room only.
     </div>
 
     <div class="container">
-        <button class="sync-btn" id="syncBtn" onclick="fetchSpreadsheetData()">🔄 Click to Load / Sync Live Catalog</button>
+        
+        <!-- LEFT: CATALOG SPACE -->
+        <div class="catalog-section">
+            <div class="metrics-grid">
+                <div class="metric-card"><p>Catalog Titles</p><h2 id="totalTitles">--</h2></div>
+                <div class="metric-card"><p>Physical Inventory</p><h2 id="totalCopies">--</h2></div>
+            </div>
 
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <p>Registered Titles</p>
-                <h2 id="totalTitles">--</h2>
-            </div>
-            <div class="metric-card">
-                <p>Physical Inventory</p>
-                <h2 id="totalCopies">--</h2>
-            </div>
+            <input type="text" id="searchInput" class="search-input" onkeyup="filterCatalog()" placeholder="🔍 Search Title, Author, Methodology, Code, or Year...">
+            
+            <div id="loading" class="loading-text">Synchronizing direct cloud data layers...</div>
+            <div id="catalogList"></div>
         </div>
 
-        <div class="search-box">
-            <h3>🔍 Search Catalog Engine</h3>
-            <input type="text" id="searchInput" onkeyup="filterCatalog()" placeholder="Search by Title, Author, Methodology, Code, or Year...">
+        <!-- RIGHT: LIVE RESERVATION WINDOW -->
+        <div class="reservation-section">
+            <h3 style="margin-top: 0; color: var(--dark);">📋 Reserve a Book</h3>
+            
+            <div id="selectedBookDetails">
+                <p style="color: var(--gray); font-style: italic;">Select a book from the catalog list to start your reservation booking layout.</p>
+            </div>
+
+            <form id="reservationForm" onsubmit="executeReservation(event)" style="display: none;">
+                <label for="studentName">Your Full Name:</label>
+                <input type="text" id="studentName" required placeholder="Enter your full name">
+
+                <label for="reservationDate">Choose Available Date (Mon & Wed Only):</label>
+                <select id="reservationDate" required></select>
+
+                <div class="room-policy-note">
+                    📌 <strong>Research Room Use Only:</strong> By submitting, you understand this reservation holds your physical copy for collection to read inside the research room on your selected date.
+                </div>
+
+                <button type="submit" class="reserve-btn">Confirm Instant Reservation</button>
+            </form>
         </div>
 
-        <div id="loading" class="loading-text" style="display:none;">Downloading active cloud matrix fields...</div>
-        <div class="catalog-list" id="catalogList"></div>
     </div>
 
     <script>
-        // Directly maps into your live spreadsheet parameters
+        // Uses the bypass parameters to extract live elements smoothly
         const GOOGLE_SHEET_URL = "https://google.com";
         const HEADER_ROW_INDEX = 2; // Row 3
         let MASTER_DATASET = [];
+        let SELECTED_ITEM = null;
 
         async function fetchSpreadsheetData() {
-            const btn = document.getElementById('syncBtn');
-            const loader = document.getElementById('loading');
-            btn.innerText = "⏳ Synchronizing Clouddrive...";
-            btn.disabled = true;
-            loader.style.display = "block";
-
             try {
                 const response = await fetch(GOOGLE_SHEET_URL);
                 const arrayBuffer = await response.arrayBuffer();
@@ -205,11 +249,9 @@
                 workbook.SheetNames.forEach(sheetName => {
                     if (sheetName.includes("Copy of")) return;
 
-                    // Convert sheets data matrix starting from row index arrays
                     const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, defval: "" });
                     if (rawRows.length <= HEADER_ROW_INDEX) return;
 
-                    // Standardize tracking columns names matching lowercase formatting elements
                     const headers = rawRows[HEADER_ROW_INDEX].map(h => String(h).trim().toLowerCase());
                     
                     const codeIdx = headers.indexOf('code');
@@ -222,34 +264,6 @@
                         const row = rawRows[i];
                         if (!row || row.length === 0) continue;
 
-                        // Safely pull elements out with programmatic fallback values
                         let rawTitle = titleIdx !== -1 ? String(row[titleIdx] || "").trim() : "";
                         let rawAuthor = authorIdx !== -1 ? String(row[authorIdx] || "").trim() : "";
                         let rawCode = codeIdx !== -1 ? String(row[codeIdx] || "").trim() : "";
-                        let rawMethod = methodIdx !== -1 ? String(row[methodIdx] || "").trim() : "";
-                        let rawCopies = copiesIdx !== -1 ? String(row[copiesIdx] || "").trim() : "0";
-
-                        // If title is entirely blank but row contains other fields, provide clean fallback text
-                        if (!rawTitle && (rawAuthor || rawCode)) rawTitle = "Untitled Thesis";
-                        if (!rawTitle) continue; // Skip entirely blank rows
-
-                        let parsedCopies = parseInt(rawCopies.replace(/[^0-9]/g, '')) || 0;
-
-                        MASTER_DATASET.push({
-                            code: rawCode || "No Code Assigned",
-                            title: rawTitle,
-                            author: rawAuthor || "No Author Listed",
-                            methodology: rawMethod || "Unspecified Methodology",
-                            copies: parsedCopies,
-                            year: sheetName
-                        });
-
-                        runningTitlesCount++;
-                        runningCopiesCount += parsedCopies;
-                    }
-                });
-
-                document.getElementById('totalTitles').innerText = runningTitlesCount.toLocaleString();
-                document.getElementById('totalCopies').innerText = runningCopiesCount.toLocaleString();
-                
-                btn.innerText = "✅ Synchronization Complete!";
