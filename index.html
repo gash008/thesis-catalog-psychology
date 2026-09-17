@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psychology Thesis Catalog & Reservation</title>
+    <!-- XLSX library to read your Google Sheet directly in the browser -->
+    <script src="https://cloudflare.com"></script>
+    <style>
+        :root {
+            --pink: #FF66C4;
+            --green: #A8E6CF;
+            --dark: #2B2D42;
+            --light: #F7F9FA;
+            --white: #FFFFFF;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: #1A1A1A;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: var(--dark);
+            color: var(--white);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .stats-box {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--green);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 25px;
+        }
+        .search-box:focus {
+            border-color: var(--pink);
+            outline: none;
+        }
+        .thesis-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border: 1px solid #EAEAEA;
+        }
+        .thesis-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--dark);
+            margin: 0 0 10px 0;
+        }
+        .meta-tag {
+            display: inline-block;
+            background: #EAEAEA;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .reserve-btn {
+            background-color: var(--pink);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            float: right;
+            margin-top: -30px;
+        }
+        .reserve-btn:hover {
+            background-color: #E055AF;
+        }
+        .reserve-btn:disabled {
+            background-color: #BDC3C7;
+            cursor: not-allowed;
+        }
+        /* Modal Popup System */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #CCC;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .submit-btn {
+            background-color: var(--green);
+            color: var(--dark);
+            width: 100%;
+            padding: 12px;
+            border: none;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #94D4BD;
+        }
+        .close-btn {
+            float: right;
+            cursor: pointer;
+            font-size: 20px;
+            color: #7F8C8D;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>📚 Thesis Catalog & Book Reservation</h1>
+</header>
+
+<div class="container">
+    <!-- Live Metrics Counter -->
+    <div class="stats-box" id="stats-box">
+        Loading catalog assets directly from Google Sheets...
+    </div>
+
+    <!-- Live Smart Search input -->
+    <input type="text" class="search-box" id="search-input" placeholder="Search by Title, Author, Code, or Methodology..." onkeyup="filterCatalog()">
+
+    <!-- Catalog Target Container -->
+    <div id="catalog-container"></div>
+</div>
+
+<!-- Reservation Form Modal Popup -->
+<div class="modal" id="reserve-modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3 style="color: var(--dark); margin-top: 0;" id="modal-book-title">Reserve Thesis</h3>
+        <div class="form-group">
+            <label for="student-name">Your Full Name</label>
+            <input type="text" id="student-name" placeholder="Surname, Name">
+        </div>
+        <div class="form-group">
+            <label for="reserve-date">Choose Available Date</label>
+            <select id="reserve-date"></select>
+        </div>
+        <button class="submit-btn" onclick="confirmReservation()">Confirm Instant Reservation</button>
+    </div>
+</div>
+
+<script>
+    const GOOGLE_SHEET_URL = "https://google.com";
+    const HEADER_ROW_INDEX = 2; // Row 3
+    let masterCatalog = [];
+    let activeSelectedIndex = null;
+
+    // Simulation database for reservations in local browser storage (Max copy tracker enforcement)
+    let reservationsDB = JSON.parse(localStorage.getItem('thesis_reservations')) || [];
+
+    async function loadGoogleSheetData() {
+        try {
+            const response = await fetch(GOOGLE_SHEET_URL);
+            const arrayBuffer = await response.arrayBuffer();
+            const data = new Uint8Array(arrayBuffer);
+            const workbook = XLSX.read(data, { type: 'array' });
+            
+            masterCatalog = [];
+
+            workbook.SheetNames.forEach(sheetName => {
+                if (sheetName.includes("Copy of")) return;
+
+                const worksheet = workbook.Sheets[sheetName];
+                // Read sheet matrix starting array layers
+                const rawJson = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                
+                if (rawJson.length <= HEADER_ROW_INDEX) return;
+
+                // Grab normalized headers from Row 3
+                const headers = rawJson[HEADER_ROW_INDEX].map(h => String(h).trim().toLowerCase());
+                
+                // Parse rows below the header
+                for (let i = HEADER_ROW_INDEX + 1; i < rawJson.length; i++) {
+                    const row = rawJson[i];
+                    if (!row || row.length === 0) continue;
+
+                    let rowData = {};
+                    headers.forEach((header, index) => {
+                        rowData[header] = row[index] !== undefined ? String(row[index]).trim() : '';
+                    });
+
+                    // Build consistent clean catalog structures matching your exact parameters
+                    const cleanItem = {
+                        uid: `${sheetName}_${i}`,
+                        year: sheetName,
+                        code: rowData['code'] || 'No Code Assigned',
+                        title: rowData['title'] || 'Untitled Thesis',
+                        author: rowData['author'] || 'No Author Listed',
+                        methodology: rowData['methodology'] || 'Unspecified Methodology',
+                        copies: parseInt(rowData['copies']) || 0
+                    };
+
+                    // Only append valid items
+                    if (cleanItem.title !== 'Untitled Thesis' || cleanItem.code !== 'No Code Assigned') {
+                        masterCatalog.push(cleanItem);
+                    }
+                }
+            });
+
+            renderDashboard();
+        } catch (error) {
+            document.getElementById('stats-box').innerHTML = `<span style="color: red;">Error synchronizing cloud document properties: ${error.message}</span>`;
+        }
+    }
+
+    function renderDashboard() {
+        const totalTitles = masterCatalog.length;
+        const totalCopies = masterCatalog.reduce((sum, item) => sum + item.copies, 0);
+
+        document.getElementById('stats-box').innerHTML = `
+            <p style="margin:0; color:#7F8C8D; font-size:14px; font-weight:bold;">TOTAL REGISTRATION STATISTICS</p>
+            <h3 style="margin:5px 0 0 0; color:#1A1A1A;">📖 ${totalTitles.toLocaleString()} Unique Thesis Titles</h3>
+            <h3 style="margin:5px 0 0 0; color:#1A1A1A;">🟢 ${totalCopies.toLocaleString()} Total Physical Copies Available</h3>
+        `;
+
+        renderCatalogList(masterCatalog);
+    }
+
+    function renderCatalogList(items) {
+        const container = document.getElementById('catalog-container');
+        container.innerHTML = '';
+
+        items.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'thesis-card';
+            
+            // Checks remaining allowance slots safely based on individual item capacity values
+            const totalItemReservations = reservationsDB.filter(r => r.uid === item.uid).length;
+            const isAvailable = item.copies > 0;
+
+            card.innerHTML = `
+                <div class="thesis-title">${item.title}</div>
+                <div>
